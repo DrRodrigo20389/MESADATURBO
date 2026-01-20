@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle: Ana Clara & Alice</title>
+    <style>
+        :root { --poup: #8a05be; --gasto: #2f855a; --bonus: #d69e2e; --extra-color: #f6ad55; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 10px; margin: 0; }
+        .app-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        
+        .user-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .user-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; font-weight: bold; background: #fff; }
+        .user-btn.active.ana { border-color: #d53f8c; background: #fff5f7; color: #d53f8c; }
+        .user-btn.active.alice { border-color: #3182ce; background: #ebf8ff; color: #3182ce; }
+
+        .dia-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .btn-dia { flex-grow: 2; background: #edf2f7; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85em; }
+        .btn-dia.checked { background: #c6f6d5; border-color: #48bb78; color: #22543d; }
+        .btn-extra { flex-grow: 1; background: #feebc8; border: 1px solid var(--extra-color); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.7em; color: #7b341e; text-align: center; }
+        .btn-extra.active { background: var(--extra-color); color: white; }
+
+        .painel-valores { margin-top: 15px; display: grid; gap: 12px; }
+        .caixa { padding: 15px; border-radius: 15px; color: white; }
+        .caixa h4 { margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; opacity: 0.9; }
+        .caixa .valor { font-size: 1.6em; font-weight: bold; display: block; }
+        
+        .c-poup { background: var(--poup); border-bottom: 4px solid #4a148c; }
+        .c-gasto { background: var(--gasto); border-bottom: 4px solid #1c5d3e; }
+        .c-bonus { background: var(--bonus); border-bottom: 4px solid #b08123; }
+
+        .btn-acao { background: rgba(255,255,255,0.25); border: 1.5px solid white; color: white; border-radius: 10px; cursor: pointer; padding: 10px; font-size: 0.85em; font-weight: 800; width: 100%; margin-top: 8px; }
+        
+        .extrato { margin-top: 20px; background: #f8fafc; border-radius: 12px; padding: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; }
+        .extrato h5 { margin: 0 0 10px 0; font-size: 0.8em; color: #64748b; text-transform: uppercase; }
+        .item-extrato { display: flex; justify-content: space-between; align-items: center; font-size: 0.75em; padding: 6px 0; border-bottom: 1px solid #edf2f7; }
+        .btn-del { color: #ef4444; border: none; background: none; cursor: pointer; font-weight: bold; padding: 0 5px; }
+
+        .btn-main { padding: 15px; border-radius: 10px; border: none; background: #1a202c; color: white; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; }
+        
+        .btn-reset-discreto { margin-top: 30px; text-align: center; }
+        .btn-reset-discreto button { background: none; border: none; color: #cbd5e0; font-size: 0.6em; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <div class="user-selector">
+        <button id="btn-ana" class="user-btn ana" onclick="setUser('ana')">Ana Clara</button>
+        <button id="btn-alice" class="user-btn alice" onclick="setUser('alice')">Alice</button>
+    </div>
+
+    <div id="container-dias"></div>
+
+    <div class="painel-valores">
+        <div class="caixa c-poup">
+            <h4>🏦 CAIXINHA NUBANK 🔒</h4>
+            <span class="valor" id="v-poup">R$ 0,00</span>
+        </div>
+        <div class="caixa c-gasto">
+            <h4>🍦 GASTO SEMANAL</h4>
+            <span class="valor" id="v-gasto">R$ 0,00</span>
+            <button class="btn-acao" onclick="registrarGasto('gasto')">💸 REGISTRAR GASTO</button>
+        </div>
+        <div class="caixa c-bonus">
+            <h4>🎒 BÔNUS (SONHOS)</h4>
+            <span class="valor" id="v-bonus">R$ 0,00</span>
+            <button class="btn-acao" onclick="registrarGasto('bonus')">🎁 USAR BÔNUS</button>
+        </div>
+    </div>
+
+    <div class="extrato">
+        <h5>📜 Histórico (Exclua para corrigir)</h5>
+        <div id="lista-extrato"></div>
+    </div>
+
+    <button class="btn-main" onclick="concluirSemana()">CONCLUIR SEMANA</button>
+
+    <div class="btn-reset-discreto">
+        <button onclick="resetAbsoluto()">Sincronizar e zerar banco de dados</button>
+    </div>
+</div>
+
+<script>
+    // Recupera o último usuário ou inicia com Ana
+    let currentUser = localStorage.getItem('ultimoUsuario') || 'ana';
+    
+    // Banco de dados persistente
+    let dataStore = JSON.parse(localStorage.getItem('financas_irmas_final_v5')) || {
+        ana: { saldoAcumulado: 0, extrato: [], diasAtivos: {} },
+        alice: { saldoAcumulado: 0, extrato: [], diasAtivos: {} }
+    };
+
+    const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+
+    function setUser(user) {
+        currentUser = user;
+        localStorage.setItem('ultimoUsuario', user);
+        document.getElementById('btn-ana').classList.toggle('active', user === 'ana');
+        document.getElementById('btn-alice').classList.toggle('active', user === 'alice');
+        render();
+    }
+
+    function render() {
+        const container = document.getElementById('container-dias');
+        container.innerHTML = '';
+        let state = dataStore[currentUser];
+        
+        diasSemana.forEach(nome => {
+            if(!state.diasAtivos[nome]) state.diasAtivos[nome] = {base: false, extra: false};
+            let row = document.createElement('div');
+            row.className = 'dia-row';
+            row.innerHTML = `
+                <button class="btn-dia ${state.diasAtivos[nome].base ? 'checked' : ''}" onclick="toggleDia('${nome}', 'base')">
+                    ${nome} <span>R$ 15</span>
+                </button>
+                <button class="btn-extra ${state.diasAtivos[nome].extra ? 'active' : ''}" onclick="toggleDia('${nome}', 'extra')">
+                    + R$ 15 EXTRA
+                </button>`;
+            container.appendChild(row);
+        });
+        atualizarCalculos();
+    }
+
+    function toggleDia(nome, tipo) {
+        dataStore[currentUser].diasAtivos[nome][tipo] = !dataStore[currentUser].diasAtivos[nome][tipo];
+        save(); atualizarCalculos(); render();
+    }
+
+    function registrarGasto(tipo) {
+        let vStr = prompt(`Quanto você gastou, ${currentUser === 'ana' ? 'Ana' : 'Alice'}?`);
+        if(vStr) {
+            let v = parseFloat(vStr.replace(',', '.'));
+            if(!isNaN(v)) {
+                dataStore[currentUser].extrato.unshift({
+                    id: Date.now(),
+                    tipo: tipo,
+                    valor: -v,
+                    desc: `${tipo.toUpperCase()}`,
+                    data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})
+                });
+                save(); atualizarCalculos();
+            }
+        }
+    }
+
+    function excluirItem(id) {
+        if(confirm("Deseja apagar este gasto e devolver o dinheiro ao saldo?")) {
+            dataStore[currentUser].extrato = dataStore[currentUser].extrato.filter(item => item.id !== id);
+            save(); atualizarCalculos();
+        }
+    }
+
+    function atualizarCalculos() {
+        let state = dataStore[currentUser];
+        let ganhoSemana = 0;
+        for(let dia in state.diasAtivos) {
+            if(state.diasAtivos[dia].base) ganhoSemana += 15;
+            if(state.diasAtivos[dia].extra) ganhoSemana += 15;
+        }
+
+        let totalPoup = (state.saldoAcumulado + ganhoSemana) / 3;
+        let resto = (state.saldoAcumulado + ganhoSemana) - totalPoup;
+        
+        let totalGasto = resto * 0.75;
+        let totalBonus = resto * 0.25;
+
+        state.extrato.forEach(item => {
+            if(item.tipo === 'gasto') totalGasto += item.valor;
+            if(item.tipo === 'bonus') totalBonus += item.valor;
+        });
+
+        document.getElementById('v-poup').innerText = format(totalPoup);
+        document.getElementById('v-gasto').innerText = format(totalGasto);
+        document.getElementById('v-bonus').innerText = format(totalBonus);
+
+        renderExtrato();
+    }
+
+    function renderExtrato() {
+        const lista = document.getElementById('lista-extrato');
+        lista.innerHTML = dataStore[currentUser].extrato.length === 0 ? '<div style="color:#ccc; font-size:0.7em">Nenhum gasto para mostrar.</div>' : '';
+        dataStore[currentUser].extrato.forEach(item => {
+            lista.innerHTML += `
+                <div class="item-extrato">
+                    <span><span style="color:#94a3b8">${item.data}</span> ${item.desc}</span>
+                    <span style="color:#ef4444">${format(item.valor)} <button class="btn-del" onclick="excluirItem(${item.id})">✕</button></span>
+                </div>`;
+        });
+    }
+
+    function concluirSemana() {
+        let state = dataStore[currentUser];
+        let ganho = 0;
+        for(let dia in state.diasAtivos) {
+            if(state.diasAtivos[dia].base) ganho += 15;
+            if(state.diasAtivos[dia].extra) ganho += 15;
+        }
+        if(confirm(`Somar R$ ${ganho} ao saldo acumulado e limpar calendário?`)) {
+            state.saldoAcumulado += ganho;
+            state.diasAtivos = {};
+            save(); render();
+        }
+    }
+
+    function format(v) { return `R$ ${v.toFixed(2).replace('.', ',')}`; }
+    function save() { localStorage.setItem('financas_irmas_final_v5', JSON.stringify(dataStore)); }
+    
+    function resetAbsoluto() {
+        if(confirm("ATENÇÃO: Isso apagará TODOS os saldos da Ana e da Alice. Tem certeza absoluta?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+    
+    // Inicia no usuário correto
+    setUser(currentUser);
+</script>
+</body>
+</html>
