@@ -1,3 +1,10 @@
+Ah, perfeito! Entendi. Agora **tanto o valor base quanto o extra passam a ser R$ 20**.
+
+Como mantivemos exatamente a mesma chave de armazenamento (`financas_irmas_final_v5`), pode subir o código para o GitHub sem medo: o celular vai ler o histórico antigo e o saldo acumulado que já estão gravados, mudando apenas o valor dos novos cliques para R$ 20.
+
+Aqui está o código atualizado:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -82,10 +89,9 @@
 </div>
 
 <script>
-    // Recupera o último usuário ou inicia com Ana
     let currentUser = localStorage.getItem('ultimoUsuario') || 'ana';
     
-    // Banco de dados persistente
+    // Mantida a mesma chave para preservar o histórico do celular
     let dataStore = JSON.parse(localStorage.getItem('financas_irmas_final_v5')) || {
         ana: { saldoAcumulado: 0, extrato: [], diasAtivos: {} },
         alice: { saldoAcumulado: 0, extrato: [], diasAtivos: {} }
@@ -112,11 +118,11 @@
             row.className = 'dia-row';
             row.innerHTML = `
                 <button class="btn-dia ${state.diasAtivos[nome].base ? 'checked' : ''}" onclick="toggleDia('${nome}', 'base')">
-                    ${nome} <span>R$ 15</span>
+                    ${nome} <span>R$ 20</span>
                 </button>
                 <button class="btn-extra ${state.diasAtivos[nome].extra ? 'active' : ''}" onclick="toggleDia('${nome}', 'extra')">
-                    + R$ 15 EXTRA
-                </button>`;
+                    + R$ 20 EXTRA
+                </button>`; // Alterado o texto para R$ 20
             container.appendChild(row);
         });
         atualizarCalculos();
@@ -155,8 +161,8 @@
         let state = dataStore[currentUser];
         let ganhoSemana = 0;
         for(let dia in state.diasAtivos) {
-            if(state.diasAtivos[dia].base) ganhoSemana += 15;
-            if(state.diasAtivos[dia].extra) ganhoSemana += 15;
+            if(state.diasAtivos[dia].base) ganhoSemana += 20;  // Base alterada para R$ 20
+            if(state.diasAtivos[dia].extra) ganhoSemana += 20; // Extra alterado para R$ 20
         }
 
         let totalPoup = (state.saldoAcumulado + ganhoSemana) / 3;
@@ -193,8 +199,8 @@
         let state = dataStore[currentUser];
         let ganho = 0;
         for(let dia in state.diasAtivos) {
-            if(state.diasAtivos[dia].base) ganho += 15;
-            if(state.diasAtivos[dia].extra) ganho += 15;
+            if(state.diasAtivos[dia].base) ganho += 20;  // Base alterada para R$ 20
+            if(state.diasAtivos[dia].extra) ganho += 20; // Extra alterado para R$ 20
         }
         if(confirm(`Somar R$ ${ganho} ao saldo acumulado e limpar calendário?`)) {
             state.saldoAcumulado += ganho;
@@ -213,8 +219,9 @@
         }
     }
     
-    // Inicia no usuário correto
     setUser(currentUser);
 </script>
 </body>
 </html>
+
+```
