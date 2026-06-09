@@ -1,52 +1,138 @@
-Ah, perfeito! Entendi. Agora **tanto o valor base quanto o extra passam a ser R$ 20**.
+Aqui está o código com a interface totalmente otimizada para a tela do seu **Xiaomi Mi 8 Pro** (que possui o notch superior "franja" e cantos bem arredondados).
 
-Como mantivemos exatamente a mesma chave de armazenamento (`financas_irmas_final_v5`), pode subir o código para o GitHub sem medo: o celular vai ler o histórico antigo e o saldo acumulado que já estão gravados, mudando apenas o valor dos novos cliques para R$ 20.
+### O que mudou para melhorar no seu celular:
 
-Aqui está o código atualizado:
+* **Prevenção contra o Notch:** Adicionei um espaçamento no topo (`padding-top: env(safe-area-inset-top);`) para garantir que o notch do Mi 8 Pro não corte os botões de Ana e Alice.
+* **Compactação Inteligente:** Diminuí levemente as margens, fontes e o tamanho dos botões de dias. Assim, tudo cabe na tela sem que você precise ficar arrastando muito para baixo.
+* **Cantos Harmônicos:** Ajustei as bordas arredondadas para combinarem com o design curvo da tela do seu aparelho.
+
+Pode copiar e subir no GitHub; os dados salvos continuarão intactos!
 
 ```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Controle: Ana Clara & Alice</title>
     <style>
-        :root { --poup: #8a05be; --gasto: #2f855a; --bonus: #d69e2e; --extra-color: #f6ad55; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; padding: 10px; margin: 0; }
-        .app-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        :root { 
+            --poup: #8a05be; 
+            --gasto: #2f855a; 
+            --bonus: #d69e2e; 
+            --extra-color: #f6ad55; 
+        }
+        body { 
+            font-family: 'Segoe UI', -apple-system, sans-serif; 
+            background-color: #f0f4f8; 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; 
+            padding-top: calc(12px + env(safe-area-inset-top)); /* Proteção para o notch do Mi 8 Pro */
+            margin: 0; 
+            box-sizing: border-box;
+        }
+        .app-card { 
+            background: white; 
+            border-radius: 24px; 
+            padding: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 390px; /* Largura ideal para a tela do Mi 8 Pro */
+            box-sizing: border-box;
+        }
         
-        .user-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-        .user-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; font-weight: bold; background: #fff; }
+        .user-selector { display: flex; gap: 8px; margin-bottom: 14px; }
+        .user-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border-radius: 14px; 
+            border: 2px solid #e2e8f0; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 0.9em;
+            background: #fff; 
+            transition: all 0.2s;
+        }
         .user-btn.active.ana { border-color: #d53f8c; background: #fff5f7; color: #d53f8c; }
         .user-btn.active.alice { border-color: #3182ce; background: #ebf8ff; color: #3182ce; }
 
-        .dia-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-        .btn-dia { flex-grow: 2; background: #edf2f7; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85em; }
+        .dia-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .btn-dia { 
+            flex-grow: 2; 
+            background: #edf2f7; 
+            border: 1px solid #e2e8f0; 
+            padding: 10px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 600; 
+            font-size: 0.85em; 
+        }
         .btn-dia.checked { background: #c6f6d5; border-color: #48bb78; color: #22543d; }
-        .btn-extra { flex-grow: 1; background: #feebc8; border: 1px solid var(--extra-color); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.7em; color: #7b341e; text-align: center; }
+        .btn-extra { 
+            flex-grow: 1; 
+            background: #feebc8; 
+            border: 1px solid var(--extra-color); 
+            padding: 10px 6px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 0.75em; 
+            color: #7b341e; 
+            text-align: center; 
+            white-space: nowrap;
+        }
         .btn-extra.active { background: var(--extra-color); color: white; }
 
-        .painel-valores { margin-top: 15px; display: grid; gap: 12px; }
-        .caixa { padding: 15px; border-radius: 15px; color: white; }
-        .caixa h4 { margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; opacity: 0.9; }
-        .caixa .valor { font-size: 1.6em; font-weight: bold; display: block; }
+        .painel-valores { margin-top: 12px; display: grid; gap: 8px; grid-template-columns: 1fr; }
+        .caixa { 
+            padding: 12px; 
+            border-radius: 16px; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+        .caixa h4 { margin: 0 0 2px 0; font-size: 0.7em; text-transform: uppercase; opacity: 0.9; letter-spacing: 0.5px; }
+        .caixa .valor { font-size: 1.4em; font-weight: bold; display: block; margin-bottom: 2px; }
         
-        .c-poup { background: var(--poup); border-bottom: 4px solid #4a148c; }
-        .c-gasto { background: var(--gasto); border-bottom: 4px solid #1c5d3e; }
-        .c-bonus { background: var(--bonus); border-bottom: 4px solid #b08123; }
+        .c-poup { background: var(--poup); border-bottom: 3px solid #4a148c; padding-bottom: 14px; }
+        .c-gasto { background: var(--gasto); border-bottom: 3px solid #1c5d3e; }
+        .c-bonus { background: var(--bonus); border-bottom: 3px solid #b08123; }
 
-        .btn-acao { background: rgba(255,255,255,0.25); border: 1.5px solid white; color: white; border-radius: 10px; cursor: pointer; padding: 10px; font-size: 0.85em; font-weight: 800; width: 100%; margin-top: 8px; }
+        .btn-acao { 
+            background: rgba(255,255,255,0.2); 
+            border: 1px solid rgba(255,255,255,0.6); 
+            color: white; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            padding: 6px; 
+            font-size: 0.75em; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
         
-        .extrato { margin-top: 20px; background: #f8fafc; border-radius: 12px; padding: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; }
-        .extrato h5 { margin: 0 0 10px 0; font-size: 0.8em; color: #64748b; text-transform: uppercase; }
-        .item-extrato { display: flex; justify-content: space-between; align-items: center; font-size: 0.75em; padding: 6px 0; border-bottom: 1px solid #edf2f7; }
-        .btn-del { color: #ef4444; border: none; background: none; cursor: pointer; font-weight: bold; padding: 0 5px; }
+        .extrato { 
+            margin-top: 12px; 
+            background: #f8fafc; 
+            border-radius: 14px; 
+            padding: 10px; 
+            max-height: 110px; 
+            overflow-y: auto; 
+            border: 1px solid #e2e8f0; 
+        }
+        .extrato h5 { margin: 0 0 6px 0; font-size: 0.75em; color: #64748b; text-transform: uppercase; }
+        .item-extrato { display: flex; justify-content: space-between; align-items: center; font-size: 0.75em; padding: 5px 0; border-bottom: 1px solid #edf2f7; }
+        .btn-del { color: #ef4444; border: none; background: none; cursor: pointer; font-weight: bold; padding: 0 4px; font-size: 1.1em; }
 
-        .btn-main { padding: 15px; border-radius: 10px; border: none; background: #1a202c; color: white; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; }
+        .btn-main { padding: 14px; border-radius: 14px; border: none; background: #1a202c; color: white; font-weight: bold; font-size: 0.95em; cursor: pointer; width: 100%; margin-top: 12px; }
         
-        .btn-reset-discreto { margin-top: 30px; text-align: center; }
-        .btn-reset-discreto button { background: none; border: none; color: #cbd5e0; font-size: 0.6em; cursor: pointer; text-decoration: none; }
+        .btn-reset-discreto { margin-top: 20px; text-align: center; padding-bottom: env(safe-area-inset-bottom); }
+        .btn-reset-discreto button { background: none; border: none; color: #cbd5e0; font-size: 0.65em; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -77,7 +163,7 @@ Aqui está o código atualizado:
     </div>
 
     <div class="extrato">
-        <h5>📜 Histórico (Exclua para corrigir)</h5>
+        <h5>📜 Histórico</h5>
         <div id="lista-extrato"></div>
     </div>
 
@@ -91,7 +177,6 @@ Aqui está o código atualizado:
 <script>
     let currentUser = localStorage.getItem('ultimoUsuario') || 'ana';
     
-    // Mantida a mesma chave para preservar o histórico do celular
     let dataStore = JSON.parse(localStorage.getItem('financas_irmas_final_v5')) || {
         ana: { saldoAcumulado: 0, extrato: [], diasAtivos: {} },
         alice: { saldoAcumulado: 0, extrato: [], diasAtivos: {} }
@@ -122,7 +207,7 @@ Aqui está o código atualizado:
                 </button>
                 <button class="btn-extra ${state.diasAtivos[nome].extra ? 'active' : ''}" onclick="toggleDia('${nome}', 'extra')">
                     + R$ 20 EXTRA
-                </button>`; // Alterado o texto para R$ 20
+                </button>`;
             container.appendChild(row);
         });
         atualizarCalculos();
@@ -151,7 +236,7 @@ Aqui está o código atualizado:
     }
 
     function excluirItem(id) {
-        if(confirm("Deseja apagar este gasto e devolver o dinheiro ao saldo?")) {
+        if(confirm("Deseja apagar este gasto?")) {
             dataStore[currentUser].extrato = dataStore[currentUser].extrato.filter(item => item.id !== id);
             save(); atualizarCalculos();
         }
@@ -161,8 +246,8 @@ Aqui está o código atualizado:
         let state = dataStore[currentUser];
         let ganhoSemana = 0;
         for(let dia in state.diasAtivos) {
-            if(state.diasAtivos[dia].base) ganhoSemana += 20;  // Base alterada para R$ 20
-            if(state.diasAtivos[dia].extra) ganhoSemana += 20; // Extra alterado para R$ 20
+            if(state.diasAtivos[dia].base) ganhoSemana += 20;
+            if(state.diasAtivos[dia].extra) ganhoSemana += 20;
         }
 
         let totalPoup = (state.saldoAcumulado + ganhoSemana) / 3;
@@ -185,7 +270,7 @@ Aqui está o código atualizado:
 
     function renderExtrato() {
         const lista = document.getElementById('lista-extrato');
-        lista.innerHTML = dataStore[currentUser].extrato.length === 0 ? '<div style="color:#ccc; font-size:0.7em">Nenhum gasto para mostrar.</div>' : '';
+        lista.innerHTML = dataStore[currentUser].extrato.length === 0 ? '<div style="color:#ccc; font-size:0.75em">Nenhum gasto registrado.</div>' : '';
         dataStore[currentUser].extrato.forEach(item => {
             lista.innerHTML += `
                 <div class="item-extrato">
@@ -199,10 +284,10 @@ Aqui está o código atualizado:
         let state = dataStore[currentUser];
         let ganho = 0;
         for(let dia in state.diasAtivos) {
-            if(state.diasAtivos[dia].base) ganho += 20;  // Base alterada para R$ 20
-            if(state.diasAtivos[dia].extra) ganho += 20; // Extra alterado para R$ 20
+            if(state.diasAtivos[dia].base) ganho += 20;
+            if(state.diasAtivos[dia].extra) ganho += 20;
         }
-        if(confirm(`Somar R$ ${ganho} ao saldo acumulado e limpar calendário?`)) {
+        if(confirm(`Somar R$ ${ganho} ao saldo e limpar a semana?`)) {
             state.saldoAcumulado += ganho;
             state.diasAtivos = {};
             save(); render();
@@ -213,7 +298,7 @@ Aqui está o código atualizado:
     function save() { localStorage.setItem('financas_irmas_final_v5', JSON.stringify(dataStore)); }
     
     function resetAbsoluto() {
-        if(confirm("ATENÇÃO: Isso apagará TODOS os saldos da Ana e da Alice. Tem certeza absoluta?")) {
+        if(confirm("ATENÇÃO: Apagar tudo?")) {
             localStorage.clear();
             location.reload();
         }
